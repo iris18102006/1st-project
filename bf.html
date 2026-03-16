@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Heart Animation</title>
+<style>
+    body {
+        margin: 0;
+        background: #000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    canvas {
+        background: #000;
+    }
+</style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+canvas.width = 500;
+canvas.height = 500;
+
+const hearts = [];
+const heartCount = 700;
+
+// Heart shape formula
+function heartFunction(t) {
+    const x = 16 * Math.pow(Math.sin(t), 3);
+    const y =
+        -(13 * Math.cos(t) -
+        5 * Math.cos(2 * t) -
+        2 * Math.cos(3 * t) -
+        Math.cos(4 * t));
+    return { x, y };
+}
+
+// Create particles (ONLY small hearts changed)
+for (let i = 0; i < heartCount; i++) {
+    const t = Math.random() * Math.PI * 2;
+    const pos = heartFunction(t);
+    hearts.push({
+        t,
+        speed: Math.random() * 0.006 + 0.005,
+        size: Math.random() * 3.3 + 2.4,      // ✅ bigger small hearts
+        alpha: Math.random() * 0.4 + 0.6, // ✅ brighter
+        x: pos.x,
+        y: pos.y
+    });
+}
+
+function drawHeart(x, y, size, alpha) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(size, size);
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = "pink";
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.bezierCurveTo(-1, -1, -2, 1, 0, 2);
+    ctx.bezierCurveTo(2, 1, 1, -1, 0, 0);
+    ctx.fill();
+    ctx.restore();
+}
+
+function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    hearts.forEach(h => {
+        h.t += h.speed;
+        const pos = heartFunction(h.t);
+
+        const scale = 14; // ❌ unchanged (big heart size)
+        h.x = canvas.width / 2 + pos.x * scale;
+        h.y = canvas.height / 2 + pos.y * scale;
+
+        drawHeart(h.x, h.y, h.size, h.alpha);
+    });
+
+    requestAnimationFrame(animate);
+}
+
+animate();
+</script>
+
+</body>
+</html> 
